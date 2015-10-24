@@ -42,7 +42,7 @@ public class Paint extends JPanel {
 		int colorG = 50;
 		int colorB = 50;
 
-		for (int i = 0; i < countAmount; i++) {
+		for (int i = 0; i < 20; i++) {
 
 			colorR += 10;
 			if (colorR > 255) {
@@ -62,11 +62,10 @@ public class Paint extends JPanel {
 			Color colorType = new Color(colorR, colorG, colorB);
 			colorArray.add(colorType);
 		}
-		/*
-		 * test can draw multicolor for(int i=0; i<countAmount;i++){
-		 * g.setColor(colorArray.get(i)); g.drawLine(10+10*i, 500+10*i,
-		 * 500+10*i,0+10*i); }
-		 */
+		for(int i=0; i<20;i++){
+		  g.setColor(colorArray.get(i)); g.drawLine(10+10*i, 500+10*i,
+		  500+10*i,0+10*i); }
+
 
 		g.setColor(black);
 		g.drawLine(400, 0, 400, 800);

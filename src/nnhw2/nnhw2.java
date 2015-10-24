@@ -110,34 +110,53 @@ public class nnhw2 extends JFrame {
 		 */
 		int inputArraySize = inputArray.size();
 		int sortedNewDesire =0;
-
-		while (inputArraySize != 0) {
-			inputArraySize = inputArray.size();
-			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
+		int iRestFlag=0;
+		System.out.println("this is inputarray's size : "+inputArraySize);
+		whileloop:
+		while (true) {
+			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set the first one's desire as standard
+			System.out.println("===============Now the standartDesire is  : "+standardDesire);
+			
 			for (int i = 0; i < inputArray.size(); i++) {
-				if (inputArray.get(i)[inputArray.get(0).length - 1] == standardDesire) {
-					inputArray.get(i)[inputArray.get(0).length - 1]=sortedNewDesire;
+				if(iRestFlag ==1){
+					i=0;
+				}
+				if ((int)inputArray.get(i)[inputArray.get(i).length - 1] == standardDesire) {
+					inputArray.get(i)[inputArray.get(i).length - 1]=sortedNewDesire;
 					sortedArray.add(inputArray.get(i));
 					inputArray.remove(i);
-					sortedNewDesire ++;
+					iRestFlag = 1;
+				}
+				else{
+					iRestFlag =0;
+				}
+				if(inputArray.size()==1){
+					i=-1;
 				}
 			}
-
-			inputArraySize--;
+			if(inputArray.size()==0){
+				System.out.println("now breakkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+				break whileloop;
+			}
+			else{
+				sortedNewDesire ++;
+			}
 		}
-
+		System.out.println("this is sorted max desire "+sortedNewDesire);
 	}
 
 	public static void main(String[] args) throws IOException {
 
 		inputFileChoose(args);
 
-		// printArrayData(inputArray);
+
 		int countAmount = countClass(inputArray);
+//		printArrayData(inputArray);
 
 		sortInputArray(inputArray);
-		System.out.println("After cal original inputArray size : " + inputArray.size());
-		System.out.println("sortedArray size : " + sortedArray.size());
+		printArrayData(sortedArray);
+//		System.out.println("After cal original inputArray size : " + inputArray.size());
+//		System.out.println("sortedArray size : " + sortedArray.size());
 
 		genarateFrame(sortedArray, countAmount);
 	}
