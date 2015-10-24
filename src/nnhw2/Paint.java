@@ -11,13 +11,13 @@ import javax.swing.JPanel;
 
 public class Paint extends JPanel {
 
-	private ArrayList<float[]> inputArray = new ArrayList<float[]>();
+	private ArrayList<float[]> sortedArray = new ArrayList<float[]>();
 	private ArrayList<Integer> classTypes = new ArrayList<Integer>();
 	private ArrayList<Color> colorArray = new ArrayList<Color>();
 	private int countAmount;
 
-	public Paint(ArrayList<float[]> inputArray, int countAmount) {
-		this.inputArray = inputArray;
+	public Paint(ArrayList<float[]> sortedArray, int countAmount) {
+		this.sortedArray = sortedArray;
 		this.countAmount = countAmount;
 		this.classTypes = classTypes;
 	}

@@ -67,7 +67,7 @@ public class nnhw2 extends JFrame {
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
-		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/wine.txt";
+		String FileName = "C:\\Users\\Terry\\Desktop\\nnhw2dataset\\wine.txt";
 		FileReader fr = new FileReader(FileName);
 		BufferedReader br = new BufferedReader(fr);// 在br.ready反查輸入串流的狀況是否有資料
 
@@ -110,6 +110,7 @@ public class nnhw2 extends JFrame {
 		 */
 		int inputArraySize = inputArray.size();
 		int sortedNewDesire =0;
+
 		while (inputArraySize != 0) {
 			inputArraySize = inputArray.size();
 			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
@@ -121,8 +122,10 @@ public class nnhw2 extends JFrame {
 					sortedNewDesire ++;
 				}
 			}
+
 			inputArraySize--;
 		}
+
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -136,7 +139,7 @@ public class nnhw2 extends JFrame {
 		System.out.println("After cal original inputArray size : " + inputArray.size());
 		System.out.println("sortedArray size : " + sortedArray.size());
 
-		genarateFrame(inputArray, countAmount);
+		genarateFrame(sortedArray, countAmount);
 	}
 
 }
