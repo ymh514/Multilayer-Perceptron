@@ -106,16 +106,21 @@ public class nnhw2 extends JFrame {
 		 *  then use it to check one by one ,if found someone is as same as 
 		 *  the standardDesire, put this data to sortedArray, so on ,we can get a
 		 *  sorted array which's desire is from 1 to number of class
+		 * 4. everytime move a item to sortedArray , raise iRestFlag and set i to
+		 * 	0, then it will run loop from beginning 
+		 * 5. when inputarray left only 1 item must set as -1, or the last data's
+		 * 	desire will be set one more number
 		 *  
 		 */
 		int inputArraySize = inputArray.size();
 		int sortedNewDesire =0;
 		int iRestFlag=0;
-		System.out.println("this is inputarray's size : "+inputArraySize);
+		System.out.println("--------- Start sort ---------");
+		System.out.println("This is inputarray's size : "+inputArraySize);
 		whileloop:
 		while (true) {
 			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set the first one's desire as standard
-			System.out.println("===============Now the standartDesire is  : "+standardDesire);
+			System.out.println("Now the standartDesire is  : "+standardDesire);
 			
 			for (int i = 0; i < inputArray.size(); i++) {
 				if(iRestFlag ==1){
@@ -130,19 +135,19 @@ public class nnhw2 extends JFrame {
 				else{
 					iRestFlag =0;
 				}
-				if(inputArray.size()==1){
+				if(inputArray.size()==1){//the last data need set i=-1 to prevent after forloop's i++
 					i=-1;
 				}
 			}
 			if(inputArray.size()==0){
-				System.out.println("now breakkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+				System.out.println("Sort done !");
 				break whileloop;
 			}
 			else{
-				sortedNewDesire ++;
+				sortedNewDesire ++;//count desire 
 			}
 		}
-		System.out.println("this is sorted max desire "+sortedNewDesire);
+		System.out.println("The max sorted desire : "+sortedNewDesire);
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -150,15 +155,13 @@ public class nnhw2 extends JFrame {
 		inputFileChoose(args);
 
 
-		int countAmount = countClass(inputArray);
+//		int countAmount = countClass(inputArray);
 //		printArrayData(inputArray);
 
 		sortInputArray(inputArray);
 		printArrayData(sortedArray);
-//		System.out.println("After cal original inputArray size : " + inputArray.size());
-//		System.out.println("sortedArray size : " + sortedArray.size());
 
-		genarateFrame(sortedArray, countAmount);
+//		genarateFrame(sortedArray, countAmount);
 	}
 
 }
