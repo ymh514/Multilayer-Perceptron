@@ -11,13 +11,13 @@ import javax.swing.JPanel;
 
 public class Paint extends JPanel {
 
-	private ArrayList<float[]> inputArray = new ArrayList<float[]>();
+	private ArrayList<float[]> sortedArray = new ArrayList<float[]>();
 	private ArrayList<Integer> classTypes = new ArrayList<Integer>();
 	private ArrayList<Color> colorArray = new ArrayList<Color>();
 	private int countAmount;
 
-	public Paint(ArrayList<float[]> inputArray, int countAmount) {
-		this.inputArray = inputArray;
+	public Paint(ArrayList<float[]> sortedArray, int countAmount) {
+		this.sortedArray = sortedArray;
 		this.countAmount = countAmount;
 		this.classTypes = classTypes;
 	}
@@ -42,7 +42,7 @@ public class Paint extends JPanel {
 		int colorG = 50;
 		int colorB = 50;
 
-		for (int i = 0; i < countAmount; i++) {
+		for (int i = 0; i < 20; i++) {
 
 			colorR += 10;
 			if (colorR > 255) {
@@ -62,11 +62,12 @@ public class Paint extends JPanel {
 			Color colorType = new Color(colorR, colorG, colorB);
 			colorArray.add(colorType);
 		}
-		/*
-		 * test can draw multicolor for(int i=0; i<countAmount;i++){
-		 * g.setColor(colorArray.get(i)); g.drawLine(10+10*i, 500+10*i,
-		 * 500+10*i,0+10*i); }
-		 */
+		/* test multicolor
+		for(int i=0; i<20;i++){
+		  g.setColor(colorArray.get(i)); g.drawLine(10+10*i, 500+10*i, 500+10*i,0+10*i); 
+		}
+		*/
+
 
 		g.setColor(black);
 		g.drawLine(400, 0, 400, 800);
