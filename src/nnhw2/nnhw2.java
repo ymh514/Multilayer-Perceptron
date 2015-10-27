@@ -22,6 +22,7 @@ public class nnhw2 extends JFrame {
 	static ArrayList<float[]> initialWeight = new ArrayList<float[]>();
 
 	static float[] yOutput = new float[neuralAmount];
+	static float[] yOutputArea = new float[neuralAmount+1];
 	
 	static int sortedNewDesire =0;
 
@@ -146,20 +147,41 @@ public class nnhw2 extends JFrame {
 		/*
 		 * not only can generate postive value , also can get negtive value
 		 */
+		System.out.println("--------------------------------------------------");		
 		Random rand = new Random();
 		for(int i=0;i<neuralAmount;i++){
 			float[] token = new float[trainArray.size()];
 				for(int j=0 ; j<trainArray.size();j++){
 					if(Math.random()>0.5){
 						token[j]=rand.nextFloat()+0f;
+						System.out.println("weight : "+token[j]);
 					}
 					else{
 						token[j]=rand.nextFloat()-1f;
+						System.out.println("weight : "+token[j]);
 					}
 				}
 				initialWeight.add(token);
 		}
+		System.out.println("--------------------------------------------------");	
 	}
+
+	public static void calOutputArea(){
+		/*
+		 * get output bound that from 0 to 1
+		 */
+		for(int i =0 ;i<=neuralAmount ;i++){
+			if(i==0){
+				yOutputArea[i]=0f;
+			}
+			else{
+				yOutputArea[i]=(float)(Math.round((float)(1*i)/neuralAmount*100))/100;//get two decimal places
+			}
+		}
+		for(int i=0;i<yOutputArea.length;i++){
+			System.out.println("yOutputBound"+i+" : "+yOutputArea[i]);
+		}
+	}	
 	
 	public static void calOutputValue(ArrayList<float[]> array,ArrayList<float[]> initialWeight){		
 		/*
@@ -194,6 +216,7 @@ public class nnhw2 extends JFrame {
 		}
 	}
 		
+
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
 		JFrame frame = new JFrame();
 
@@ -256,8 +279,10 @@ public class nnhw2 extends JFrame {
 		*/
 		genarateInitialWeight();
 		
+		calOutputArea();
+		
 		calOutputValue(trainArray,initialWeight);
-		genarateFrame(trainArray, sortedNewDesire+1);
+//		genarateFrame(trainArray, sortedNewDesire+1);
 	}
 	
 	public static void printArrayData(ArrayList<float[]> showArray) {
