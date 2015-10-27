@@ -143,14 +143,22 @@ public class nnhw2 extends JFrame {
 	}
 	
 	public static void genarateInitialWeight(){
+		/*
+		 * not only can generate postive value , also can get negtive value
+		 */
 		Random rand = new Random();
 		for(int i=0;i<neuralAmount;i++){
 			float[] token = new float[trainArray.size()];
-			for(int j=0 ; j<trainArray.size();j++){
-				token[j]=rand.nextFloat()+1f;
-			}
-			initialWeight.add(token);
-		}	
+				for(int j=0 ; j<trainArray.size();j++){
+					if(Math.random()>0.5){
+						token[j]=rand.nextFloat()+0f;
+					}
+					else{
+						token[j]=rand.nextFloat()-1f;
+					}
+				}
+				initialWeight.add(token);
+		}
 	}
 	
 	public static void calOutputValue(ArrayList<float[]> array,ArrayList<float[]> initialWeight){		
@@ -240,8 +248,8 @@ public class nnhw2 extends JFrame {
 		separateTemp(tempArray);// separate to train and test set,set 2/3 as
 									// train set 1/3 as test set
 		
-		System.out.println("trainArray's datas : ");
-		printArrayData(trainArray);
+//		System.out.println("trainArray's datas : ");
+//		printArrayData(trainArray);
 		/*
 		System.out.println("testArray's datas : ");
 		printArrayData(testArray);
@@ -249,7 +257,7 @@ public class nnhw2 extends JFrame {
 		genarateInitialWeight();
 		
 		calOutputValue(trainArray,initialWeight);
-//		genarateFrame(trainArray, sortedNewDesire+1);
+		genarateFrame(trainArray, sortedNewDesire+1);
 	}
 	
 	public static void printArrayData(ArrayList<float[]> showArray) {
