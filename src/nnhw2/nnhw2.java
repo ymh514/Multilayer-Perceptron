@@ -22,9 +22,10 @@ public class nnhw2 extends JFrame {
 	static ArrayList<float[]> initialWeight = new ArrayList<float[]>();
 
 	static float[] yOutput = new float[neuralAmount];
-	static float[] yOutputArea = new float[neuralAmount+1];
 	
 	static int sortedNewDesire =0;
+	
+	static float[] yOutputArea;
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
@@ -170,12 +171,17 @@ public class nnhw2 extends JFrame {
 		/*
 		 * get output bound that from 0 to 1
 		 */
-		for(int i =0 ;i<=neuralAmount ;i++){
+		System.out.println("%%%%%%%%%%%%%%%  "+sortedNewDesire);
+		
+		int classAmount = sortedNewDesire+1;
+		yOutputArea = new float[classAmount+1];	
+		
+		for(int i =0 ;i<=classAmount ;i++){
 			if(i==0){
 				yOutputArea[i]=0f;
 			}
 			else{
-				yOutputArea[i]=(float)(Math.round((float)(1*i)/neuralAmount*100))/100;//get two decimal places
+				yOutputArea[i]=(float)(Math.round((float)(1*i)/classAmount*100))/100;//get two decimal places
 			}
 		}
 		for(int i=0;i<yOutputArea.length;i++){
@@ -216,7 +222,6 @@ public class nnhw2 extends JFrame {
 		}
 	}
 		
-
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
 		JFrame frame = new JFrame();
 
@@ -270,6 +275,8 @@ public class nnhw2 extends JFrame {
 
 		separateTemp(tempArray);// separate to train and test set,set 2/3 as
 									// train set 1/3 as test set
+		
+		
 		
 //		System.out.println("trainArray's datas : ");
 //		printArrayData(trainArray);
