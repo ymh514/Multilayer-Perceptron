@@ -16,6 +16,8 @@ public class nnhw2 extends JFrame {
 	static ArrayList<Integer> classTypes = new ArrayList<Integer>();
 	static ArrayList<float[]> inputArray = new ArrayList<float[]>();
 	static ArrayList<float[]> sortedArray = new ArrayList<float[]>();
+	
+	static int sortedNewDesire =0;
 
 	public static void printArrayData(ArrayList<float[]> showArray) {
 		for (int i = 0; i < showArray.size(); i++) {
@@ -67,7 +69,7 @@ public class nnhw2 extends JFrame {
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
-		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/wine.txt";
+		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/xor.txt";
 		FileReader fr = new FileReader(FileName);
 		BufferedReader br = new BufferedReader(fr);// 在br.ready反查輸入串流的狀況是否有資料
 
@@ -106,37 +108,61 @@ public class nnhw2 extends JFrame {
 		 *  then use it to check one by one ,if found someone is as same as 
 		 *  the standardDesire, put this data to sortedArray, so on ,we can get a
 		 *  sorted array which's desire is from 1 to number of class
+		 * 4. everytime move a item to sortedArray , raise iRestFlag and set i to
+		 * 	0, then it will run loop from beginning 
+		 * 5. when inputarray left only 1 item must set as -1, or the last data's
+		 * 	desire will be set one more number
 		 *  
 		 */
 		int inputArraySize = inputArray.size();
-		int sortedNewDesire =0;
-		while (inputArraySize != 0) {
-			inputArraySize = inputArray.size();
-			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
+		int iRestFlag=0;
+		System.out.println("--------- Start sort ---------");
+		System.out.println("This is inputarray's size : "+inputArraySize);
+		whileloop:
+		while (true) {
+			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set the first one's desire as standard
+			System.out.println("Now the standartDesire is  : "+standardDesire);
+			
 			for (int i = 0; i < inputArray.size(); i++) {
-				if (inputArray.get(i)[inputArray.get(0).length - 1] == standardDesire) {
-					inputArray.get(i)[inputArray.get(0).length - 1]=sortedNewDesire;
+				if(iRestFlag ==1){
+					i=0;
+				}
+				if ((int)inputArray.get(i)[inputArray.get(i).length - 1] == standardDesire) {
+					inputArray.get(i)[inputArray.get(i).length - 1]=sortedNewDesire;
 					sortedArray.add(inputArray.get(i));
 					inputArray.remove(i);
-					sortedNewDesire ++;
+					iRestFlag = 1;
+				}
+				else{
+					iRestFlag =0;
+				}
+				if(inputArray.size()==1){//the last data need set i=-1 to prevent after forloop's i++
+					i=-1;
 				}
 			}
-			inputArraySize--;
+			if(inputArray.size()==0){
+				System.out.println("Sort done !");
+				break whileloop;
+			}
+			else{
+				sortedNewDesire ++;//count desire 
+			}
 		}
+		System.out.println("The max sorted desire : "+sortedNewDesire);
 	}
 
 	public static void main(String[] args) throws IOException {
 
 		inputFileChoose(args);
 
-		// printArrayData(inputArray);
-		int countAmount = countClass(inputArray);
+
+
+//		printArrayData(inputArray);
 
 		sortInputArray(inputArray);
-		System.out.println("After cal original inputArray size : " + inputArray.size());
-		System.out.println("sortedArray size : " + sortedArray.size());
+//		printArrayData(sortedArray);
 
-		genarateFrame(inputArray, countAmount);
+		genarateFrame(sortedArray, sortedNewDesire+1);
 	}
 
 }
