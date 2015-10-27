@@ -13,9 +13,13 @@ public class nnhw2 extends JFrame {
 	static int frameSizeX = 800;
 	static int frameSizeY = 800;
 
-	static ArrayList<Integer> classTypes = new ArrayList<Integer>();
 	static ArrayList<float[]> inputArray = new ArrayList<float[]>();
 	static ArrayList<float[]> sortedArray = new ArrayList<float[]>();
+	static ArrayList<float[]> tempArray = new ArrayList<float[]>();
+	static ArrayList<float[]> trainArray = new ArrayList<float[]>();
+	static ArrayList<float[]> testArray = new ArrayList<float[]>();
+	
+	static int sortedNewDesire =0;
 
 	public static void printArrayData(ArrayList<float[]> showArray) {
 		for (int i = 0; i < showArray.size(); i++) {
@@ -26,13 +30,15 @@ public class nnhw2 extends JFrame {
 		}
 	}
 
+	/*
+	 * 1. put first class's type into classTypes 1st place 2. if next line's
+	 * class diffrent with 1st class so go on next if 3. search classTypes's
+	 * all class to judge if all are diffrent rais addFlag 4. if addFlag
+	 * raised, add this new class into classType
+	 */
+	/*
 	private static int countClass(ArrayList<float[]> inputArray) {
-		/*
-		 * 1. put first class's type into classTypes 1st place 2. if next line's
-		 * class diffrent with 1st class so go on next if 3. search classTypes's
-		 * all class to judge if all are diffrent rais addFlag 4. if addFlag
-		 * raised, add this new class into classType
-		 */
+		
 		int addFlag = 0;
 		classTypes.add((int) inputArray.get(0)[(inputArray.get(0).length) - 1]);
 
@@ -52,7 +58,38 @@ public class nnhw2 extends JFrame {
 		}
 		return classTypes.size();
 	}
+*/
 
+	private static void putInputToTemp(ArrayList<float[]> sorteArray) {
+		int arrayInputAmount = sortedArray.size();
+		Random rand = new Random();
+		while (arrayInputAmount != 0) {
+			int n = rand.nextInt(arrayInputAmount) + 0;
+			tempArray.add(sortedArray.get(n));
+			sortedArray.remove(n);// del input to prevent get same data
+			arrayInputAmount--;
+		}
+
+	}
+
+	private static void separateTemp(ArrayList<float[]> tempArray) {
+		int totalamount = tempArray.size();
+		int tocalamount = Math.round((float) (totalamount * 2) / 3);
+		int totestamount = totalamount - tocalamount;
+
+		while (tocalamount != 0) {
+			trainArray.add(tempArray.get(0));
+			tempArray.remove(0);
+			tocalamount--;
+		}
+		System.out.println("train amount : " + trainArray.size());
+		while (totestamount != 0) {
+			testArray.add(tempArray.get(0));
+			tempArray.remove(0);
+			totestamount--;
+		}
+		System.out.println("test amount : " + testArray.size());
+	}
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
 		JFrame frame = new JFrame();
 
@@ -106,37 +143,65 @@ public class nnhw2 extends JFrame {
 		 *  then use it to check one by one ,if found someone is as same as 
 		 *  the standardDesire, put this data to sortedArray, so on ,we can get a
 		 *  sorted array which's desire is from 1 to number of class
+		 * 4. everytime move a item to sortedArray , raise iRestFlag and set i to
+		 * 	0, then it will run loop from beginning 
+		 * 5. when inputarray left only 1 item must set as -1, or the last data's
+		 * 	desire will be set one more number
 		 *  
 		 */
 		int inputArraySize = inputArray.size();
-		int sortedNewDesire =0;
-		while (inputArraySize != 0) {
-			inputArraySize = inputArray.size();
-			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
+		int iRestFlag=0;
+		System.out.println("--------- Start sort ---------");
+		System.out.println("This is inputarray's size : "+inputArraySize);
+		whileloop:
+		while (true) {
+			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set the first one's desire as standard
+			System.out.println("Now the standartDesire is  : "+standardDesire);
+			
 			for (int i = 0; i < inputArray.size(); i++) {
-				if (inputArray.get(i)[inputArray.get(0).length - 1] == standardDesire) {
-					inputArray.get(i)[inputArray.get(0).length - 1]=sortedNewDesire;
+				if(iRestFlag ==1){
+					i=0;
+				}
+				if ((int)inputArray.get(i)[inputArray.get(i).length - 1] == standardDesire) {
+					inputArray.get(i)[inputArray.get(i).length - 1]=sortedNewDesire;
 					sortedArray.add(inputArray.get(i));
 					inputArray.remove(i);
-					sortedNewDesire ++;
+					iRestFlag = 1;
+				}
+				else{
+					iRestFlag =0;
+				}
+				if(inputArray.size()==1){//the last data need set i=-1 to prevent after forloop's i++
+					i=-1;
 				}
 			}
-			inputArraySize--;
+			if(inputArray.size()==0){
+				System.out.println("--------- Sort done! ---------");
+				System.out.println("");
+				break whileloop;
+			}
+			else{
+				sortedNewDesire ++;//count desire 
+			}
 		}
+		System.out.println("The max sorted desire : "+sortedNewDesire);
 	}
 
 	public static void main(String[] args) throws IOException {
 
 		inputFileChoose(args);
 
-		// printArrayData(inputArray);
-		int countAmount = countClass(inputArray);
-
 		sortInputArray(inputArray);
-		System.out.println("After cal original inputArray size : " + inputArray.size());
-		System.out.println("sortedArray size : " + sortedArray.size());
 
-		genarateFrame(inputArray, countAmount);
+		putInputToTemp(sortedArray);// copy to temp with random
+
+		separateTemp(tempArray);// separate to train and test set,set 2/3 as
+									// train set 1/3 as test set
+		System.out.println("trainArray's datas : ");
+		printArrayData(trainArray);
+		System.out.println("testArray's datas : ");
+		printArrayData(testArray);
+		genarateFrame(trainArray, sortedNewDesire+1);
 	}
 
 }
