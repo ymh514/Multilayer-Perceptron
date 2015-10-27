@@ -11,12 +11,12 @@ import javax.swing.JPanel;
 
 public class Paint extends JPanel {
 
-	private ArrayList<float[]> sortedArray = new ArrayList<float[]>();
+	private ArrayList<float[]> trainArray = new ArrayList<float[]>();
 	private ArrayList<Color> colorArray = new ArrayList<Color>();
 	private int classAmount;
 
-	public Paint(ArrayList<float[]> sortedArray, int classAmount) {
-		this.sortedArray = sortedArray;
+	public Paint(ArrayList<float[]> trainArray, int classAmount) {
+		this.trainArray = trainArray;
 		this.classAmount = classAmount;
 	}
 
@@ -39,9 +39,9 @@ public class Paint extends JPanel {
 		 * 	,so we can fetch the color in this arraylist
 		 */
 		
-		for (int i = 0; i < sortedArray.size(); i++) {
-			for (int j = 0; j < sortedArray.get(i).length; j++) {
-				System.out.print(sortedArray.get(i)[j] + "\t");
+		for (int i = 0; i < trainArray.size(); i++) {
+			for (int j = 0; j < trainArray.get(i).length; j++) {
+				System.out.print(trainArray.get(i)[j] + "\t");
 			}
 			System.out.println("");
 		}
@@ -78,11 +78,11 @@ public class Paint extends JPanel {
 		}
 		
 		for(int i=0; i<classAmount ; i++){
-			for(int j=0;j<sortedArray.size();j++){
-				if(sortedArray.get(j)[sortedArray.get(j).length-1]==i){
+			for(int j=0;j<trainArray.size();j++){
+				if(trainArray.get(j)[trainArray.get(j).length-1]==i){
 					g.setColor(colorArray.get(i));
-					g.fillOval((Math.round(398 + (sortedArray.get(j)[0]) * 16)),
-							Math.round((398 + (-sortedArray.get(j)[1]) * 16)), 4, 4);
+					g.fillOval((Math.round(398 + (trainArray.get(j)[0]) * 16)),
+							Math.round((398 + (-trainArray.get(j)[1]) * 16)), 4, 4);
 					
 				}
 			}
