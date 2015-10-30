@@ -16,6 +16,7 @@ public class nnhw2 extends JFrame {
 	static int frameSizeX = 800;
 	static int frameSizeY = 800;
 	static int neuralAmount = 3;
+	static float studyRate = 0.5f;
 
 	static ArrayList<float[]> inputArray = new ArrayList<float[]>();
 	static ArrayList<float[]> sortedArray = new ArrayList<float[]>();
@@ -29,7 +30,8 @@ public class nnhw2 extends JFrame {
 	static int sortedNewDesire =0;
 	
 	static float[] yOutputArea;
-	static float[] gradient={0,0,0};
+	//static float[] gradient={0,0,0};
+	static float[] gradient = new float[neuralAmount]; 
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
@@ -249,22 +251,19 @@ public class nnhw2 extends JFrame {
 		}
 		if(classifyFlag==0){
 			calculateGradient(yOutputArea[desire]);
+			tuneWeight(noOfData,array);
 		}
+		
 	}
 		
 	private static void calculateGradient(float desire){
-		System.out.println("in and do gradient");
-		System.out.println(neuralAmount-1);
-		System.out.println("print gradient "+gradient.length);
 
 		int countdown = neuralAmount-1;
 		while(countdown!=-1){
 			if(countdown==neuralAmount-1){
-				System.out.println("1111111111");
 				gradient[countdown]=(desire-yOutput[countdown])*yOutput[countdown]*(1-yOutput[countdown]);
 			}
 			else{
-				System.out.println("222222222222");
 				gradient[countdown]=yOutput[countdown]*(1-yOutput[countdown])*gradient[neuralAmount-1]*initialWeight.get(neuralAmount-1)[countdown+1];
 			}
 			countdown--;
@@ -273,6 +272,37 @@ public class nnhw2 extends JFrame {
 		for(int i=0;i<gradient.length;i++){
 			System.out.println(gradient[i]);
 		}
+	}
+	
+	private static void tuneWeight(int noOfData,ArrayList<float[]> array){
+		float weightSum=0f;
+		int x0=-1;
+		for(int i=0;i<initialWeight.size();i++){
+			if(i!=initialWeight.size()-1){
+				for(int j=0;j<initialWeight.get(i).length;j++){
+					if(j==0){
+						initialWeight.get(i)[j]+=studyRate*gradient[i]*x0;
+					}
+					else{
+						initialWeight.get(i)[j]+=studyRate*gradient[i]*array.get(noOfData)[j-1];
+					}
+				}
+			}
+			else{
+				for(int j=0;j<initialWeight.get(i).length;j++){
+					if(j==0){
+						initialWeight.get(i)[j]+=studyRate*gradient[i]*x0;
+					}
+					else{
+						System.out.println("thej thej thej thej"+j);
+						initialWeight.get(i)[j]+=studyRate*gradient[i]*yOutput[j-1];
+					}
+				}		
+			}
+			
+		}
+		System.out.println("tune weight : ");
+		printArrayData(initialWeight);
 	}
 	
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
@@ -327,16 +357,18 @@ public class nnhw2 extends JFrame {
 
 		separateTemp(tempArray);// separate to train and test set,set 2/3 as
 									// train set 1/3 as test set
-
+		
+		/*
 		System.out.println("trainArray's datas : ");
 		printArrayData(trainArray);
-		/*
 		System.out.println("testArray's datas : ");
 		printArrayData(testArray);
 		*/
+		
 //		genarateInitialWeight();
 		
-		// test first
+		
+		// hard coding test first
 		float[] a={(float)-1.2,1,1};
 		float[] b={(float) 0.3,1,1};
 		float[] c={(float) 0.5,(float) 0.4,(float) 0.8};
@@ -344,7 +376,9 @@ public class nnhw2 extends JFrame {
 		initialWeight.add(a);
 		initialWeight.add(b);
 		initialWeight.add(c);
-				
+		//
+		
+		
 		calOutputArea();
 		
 		calOutputValue(trainArray,initialWeight);
