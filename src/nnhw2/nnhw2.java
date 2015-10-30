@@ -6,6 +6,9 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
+import com.sun.org.apache.xml.internal.security.Init;
+
+import jdk.internal.org.objectweb.asm.tree.IntInsnNode;
 import nnhw2.Paint;
 
 public class nnhw2 extends JFrame {
@@ -26,6 +29,7 @@ public class nnhw2 extends JFrame {
 	static int sortedNewDesire =0;
 	
 	static float[] yOutputArea;
+	static float[] gradient={0,0,0};
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
@@ -201,6 +205,8 @@ public class nnhw2 extends JFrame {
 		 */
 		int x0=-1;
 		int noOfData = 0;
+		int classifyFlag = 0;
+		int desire = (int)array.get(noOfData)[array.get(noOfData).length-1];
 		System.out.println("this is dataamount : "+noOfData);
 		loop:
 		while(true){
@@ -225,23 +231,50 @@ public class nnhw2 extends JFrame {
 					System.out.println("y"+i+"(z) output is : "+yOutput[i]);
 					
 					// declare the desire
-					int desire = (int)array.get(noOfData)[array.get(noOfData).length-1];
 					System.out.println("this data's desire is : "+desire);
 					System.out.println("yOutputArea : "+yOutputArea[desire]);
 					
 					// check classify area correct or not
 					if(yOutput[i]>=yOutputArea[desire]&&yOutput[i]<yOutputArea[desire+1]){
 						System.out.println("Correct classify");
+						classifyFlag = 1;
 					}
 					else{
 						System.out.println("Error clssify");
+						classifyFlag = 0;
 					}
 					break loop;
 				}
 			}
 		}
+		if(classifyFlag==0){
+			calculateGradient(yOutputArea[desire]);
+		}
 	}
 		
+	private static void calculateGradient(float desire){
+		System.out.println("in and do gradient");
+		System.out.println(neuralAmount-1);
+		System.out.println("print gradient "+gradient.length);
+
+		int countdown = neuralAmount-1;
+		while(countdown!=-1){
+			if(countdown==neuralAmount-1){
+				System.out.println("1111111111");
+				gradient[countdown]=(desire-yOutput[countdown])*yOutput[countdown]*(1-yOutput[countdown]);
+			}
+			else{
+				System.out.println("222222222222");
+				gradient[countdown]=yOutput[countdown]*(1-yOutput[countdown])*gradient[neuralAmount-1]*initialWeight.get(neuralAmount-1)[countdown+1];
+			}
+			countdown--;
+		}
+		System.out.println("gradient : ");
+		for(int i=0;i<gradient.length;i++){
+			System.out.println(gradient[i]);
+		}
+	}
+	
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
 		JFrame frame = new JFrame();
 
@@ -301,8 +334,17 @@ public class nnhw2 extends JFrame {
 		System.out.println("testArray's datas : ");
 		printArrayData(testArray);
 		*/
-		genarateInitialWeight();
+//		genarateInitialWeight();
 		
+		// test first
+		float[] a={(float)-1.2,1,1};
+		float[] b={(float) 0.3,1,1};
+		float[] c={(float) 0.5,(float) 0.4,(float) 0.8};
+		
+		initialWeight.add(a);
+		initialWeight.add(b);
+		initialWeight.add(c);
+				
 		calOutputArea();
 		
 		calOutputValue(trainArray,initialWeight);
