@@ -204,10 +204,12 @@ public class nnhw2 extends JFrame {
 		 *   notice : for(j) loop's yOutput[j-1] cause must 
 		 *            fetch value from the first value
 		 * 4. the latest value of yOutput is outputz
+		 * 5. use a flag to detect classify correct or not
+		 * 6. if classify fail cal grdient and tune weight
 		 */
 		int x0=-1;
 		int noOfData = 0;
-		int classifyFlag = 0;
+		int classifyFlage = 0;
 		int desire = (int)array.get(noOfData)[array.get(noOfData).length-1];
 		System.out.println("this is dataamount : "+noOfData);
 		loop:
@@ -236,20 +238,20 @@ public class nnhw2 extends JFrame {
 					System.out.println("this data's desire is : "+desire);
 					System.out.println("yOutputArea : "+yOutputArea[desire]);
 					
-					// check classify area correct or not
+					// check classify area correct or not use a range bound
 					if(yOutput[i]>=yOutputArea[desire]&&yOutput[i]<yOutputArea[desire+1]){
 						System.out.println("Correct classify");
-						classifyFlag = 1;
+						classifyFlage = 1;
 					}
 					else{
 						System.out.println("Error clssify");
-						classifyFlag = 0;
+						classifyFlage = 0;
 					}
 					break loop;
 				}
 			}
 		}
-		if(classifyFlag==0){
+		if(classifyFlage==0){
 			calculateGradient(yOutputArea[desire]);
 			tuneWeight(noOfData,array);
 		}
@@ -257,7 +259,11 @@ public class nnhw2 extends JFrame {
 	}
 		
 	private static void calculateGradient(float desire){
-
+		/*
+		 * 1. declare count is neuralAmount-1 for array use
+		 * 2. while loop continue --
+		 * 3. output layer's gradient calculation is diff from hidden layer
+		 */
 		int countdown = neuralAmount-1;
 		while(countdown!=-1){
 			if(countdown==neuralAmount-1){
@@ -275,6 +281,11 @@ public class nnhw2 extends JFrame {
 	}
 	
 	private static void tuneWeight(int noOfData,ArrayList<float[]> array){
+		/*
+		 * 1. cause weight is a dim 2 matrix so we use 2 for loop to pack it
+		 * 2. but we use a if to separate with hidden and output layer
+		 * 3. in the calculation--notice: gradient[i] is i not j
+		 */
 		float weightSum=0f;
 		int x0=-1;
 		for(int i=0;i<initialWeight.size();i++){
@@ -294,7 +305,6 @@ public class nnhw2 extends JFrame {
 						initialWeight.get(i)[j]+=studyRate*gradient[i]*x0;
 					}
 					else{
-						System.out.println("thej thej thej thej"+j);
 						initialWeight.get(i)[j]+=studyRate*gradient[i]*yOutput[j-1];
 					}
 				}		
