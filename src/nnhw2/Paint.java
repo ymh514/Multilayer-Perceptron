@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+
 public class Paint extends JPanel {
 
 	private ArrayList<float[]> trainArray = new ArrayList<float[]>();
@@ -28,6 +29,7 @@ public class Paint extends JPanel {
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		
 		/*
 		 * 1. this function can detect numbers of class then generate the
 		 * 	numbers of class
