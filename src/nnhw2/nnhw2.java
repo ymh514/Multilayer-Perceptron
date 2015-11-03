@@ -29,8 +29,10 @@ public class nnhw2 extends JFrame {
 	static int sortedNewDesire = 0;
 
 	static float[] yOutputArea;
+	static float[] desireArea;
 	static float[] gradient = new float[neuralAmount];
-	static float[] errorFunction=new float[neuralAmount];
+	static float[] errorFunction = new float[neuralAmount];
+//	static ArrayList<Float> errorFunction=new ArrayList<Float>();
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
@@ -193,6 +195,26 @@ public class nnhw2 extends JFrame {
 			System.out.println("yOutputBound" + i + " : " + yOutputArea[i]);
 		}
 	}
+	
+	public static void calDesireArea() {
+		/*
+		 * get output bound that from 0 to 1
+		 */
+		int classAmount = sortedNewDesire + 1;
+		desireArea = new float[classAmount];
+
+		for (int i = 0; i < classAmount; i++) {
+			if (i == 0) {
+				desireArea[i] = 0f;
+			} else {
+				// get two decimal places
+				desireArea[i] = (float) (Math.round((float) i / (classAmount-1) * 100)) / 100;
+			}
+		}
+		for (int i = 0; i < desireArea.length; i++) {
+			System.out.println("desireAreaBound" + i + " : " + desireArea[i]);
+		}
+	}
 
 	public static void calOutputValue(ArrayList<float[]> array, ArrayList<float[]> initialWeight) {
 		/*
@@ -210,7 +232,8 @@ public class nnhw2 extends JFrame {
 		int noOfData = 0;
 		int classifyFlage = 0;
 		int looptimes=0;
-		int correctCount=0;
+		int count=0;
+		
 		loop: 
 		while (true) {
 			int desire = (int) array.get(noOfData)[array.get(noOfData).length - 1];
@@ -240,41 +263,27 @@ public class nnhw2 extends JFrame {
 
 					// declare the desire
 					System.out.println("this data's desire is : " + desire);
-					System.out.println("yOutputArea : " + yOutputArea[desire]);
-
-					
+					System.out.println("desire value in area : " + desireArea[desire]);
 					
 					// check classify area correct or not use a range bound
-					if (yOutput[i] >= yOutputArea[desire] && yOutput[i] < yOutputArea[desire + 1]) {
+					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
 						classifyFlage = 1;
-						correctCount++;
 					} else {
 						System.out.println("Error clssify");
 						classifyFlage = 0;
-						correctCount=0;
 						//try store error message
-						float errorTemp=yOutputArea[desire]-yOutput[i];
+						float errorTemp=desireArea[desire]-yOutput[i];
 						errorFunction[noOfData]=errorTemp;
-						System.out.println("%%%%%%%%%%  : "+errorFunction[noOfData]);
 					}
  				}
 			}
 			
 			if (classifyFlage == 0) {
-				calculateGradient(yOutputArea[desire]);
+				calculateGradient(desireArea[desire]);
 				tuneWeight(noOfData, array);
 			}
-			
-			if( looptimes>3 && correctCount==2){
-				correctCount=0;
-				float rmseValue=calRMSE();
-				if(rmseValue<0.02){
-					System.out.println("cost looptimes : "+looptimes);
-					break loop;
-				}
-			}
-			
+						
 			System.out.println("---------------------------------------------------------");
 			
 			if(noOfData==array.size()-1){
@@ -283,7 +292,6 @@ public class nnhw2 extends JFrame {
 			else{			
 				noOfData++;
 			}
-			
 			looptimes ++;
 			if(looptimes>10000){
 				System.out.println("out of looptimes");
@@ -302,8 +310,7 @@ public class nnhw2 extends JFrame {
 		System.out.println("----- try to cal error function -----");
 		float errorSum=0;
 		for(int i=0;i<errorFunction.length;i++){
-			errorFunction[i]*=errorFunction[i];
-			errorSum+=errorFunction[i];
+			errorSum = errorSum + (errorFunction[i] * errorFunction[i]);
 		}	
 		errorSum /= 2;
 		System.out.println("Test RMSE : "+errorSum);
@@ -414,9 +421,10 @@ public class nnhw2 extends JFrame {
 //		  printArrayData(testArray);
 		 
 
-		// genarateInitialWeight();
+		genarateInitialWeight();
 
 		// hard coding test first
+		/*
 		float[] a = { (float) -1.2, 1, 1 };
 		float[] b = { (float) 0.3, 1, 1 };
 		float[] c = { (float) 0.5, (float) 0.4, (float) 0.8 };
@@ -424,10 +432,10 @@ public class nnhw2 extends JFrame {
 		initialWeight.add(a);
 		initialWeight.add(b);
 		initialWeight.add(c);
-		//
+		*///
 
 		calOutputArea();
-
+		calDesireArea();
 		calOutputValue(trainArray, initialWeight);
 		
 		System.out.println("Show final weight ");
@@ -440,12 +448,13 @@ public class nnhw2 extends JFrame {
 		}
 		
 		//check the weight correct
-		System.out.println("##### now start to check #####");
+		System.out.println("-------------------- now start to check --------------------");
+		
+		printArrayData(trainArray);
 		
 		int noOfData = 0;
 		int classifyFlage = 0;
-		int looptimes=0;
-		int correctCount=0;
+		
 		loop: 
 		while (true) {
 			int desire = (int) trainArray.get(noOfData)[trainArray.get(noOfData).length - 1];
@@ -473,25 +482,17 @@ public class nnhw2 extends JFrame {
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sumZ)));
 					System.out.println("y" + i + "(z) output is : " + yOutput[i]);
 
-					// declare the desire
-					System.out.println("this data's desire is : " + desire);
-					System.out.println("yOutputArea : " + yOutputArea[desire]);
 					
 					// check classify area correct or not use a range bound
-					if (yOutput[i] >= yOutputArea[desire] && yOutput[i] < yOutputArea[desire + 1]) {
+					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
-						correctCount++;
 					} else {
 						System.out.println("Error clssify");
-						correctCount=0;
 						//try store error message
-						float errorTemp=yOutputArea[desire]-yOutput[i];
-						errorFunction[noOfData]=errorTemp;
 					}
  				}
 			}
-			
-			
+
 			System.out.println("---------------------------------------------------------");
 			
 			if(noOfData==trainArray.size()-1){
