@@ -154,15 +154,15 @@ public class nnhw2 extends JFrame {
 		System.out.println("test amount : " + testArray.size());
 	}
 
-	public static void genarateInitialWeight() {
+	public static void generateInitialWeight() {
 		/*
 		 * not only can generate postive value , also can get negtive value
 		 */
 		System.out.println("--------------------------------------------------");
 		Random rand = new Random();
 		for (int i = 0; i < neuralAmount; i++) {
-			float[] token = new float[trainArray.size()];
-			for (int j = 0; j < trainArray.size(); j++) {
+			float[] token = new float[trainArray.get(0).length];
+			for (int j = 0; j < trainArray.get(0).length; j++) {
 				if (Math.random() > 0.5) {
 					token[j] = rand.nextFloat() + 0f;
 					System.out.println("weight : " + token[j]);
@@ -224,16 +224,17 @@ public class nnhw2 extends JFrame {
 		 *    to get z the last output notice : for(j) loop's yOutput[j-1] 
 		 *    cause must fetch value from the first value 
 		 * 4. the latest value of yOutput is outputz 
-		 * 5. use a flag to detect classify correct or not 
-		 * 6. if classify fail cal grdient and tune weight
+		 * 5. use a flag to detect classify correct or not
+		 *    how to decide :?  
+		 *    use yOutputArea to detect the data in right area or not
+		 *    then throw desireArea to cal gradient and tune weight
+		 * 6. if classify fail cal gradient and tune weight
 		 */
 		
-		// still not add looptimes countdown add rmse first 
+		// looptimes count , still need to add rmse 
 		int noOfData = 0;
 		int classifyFlage = 0;
-		int looptimes=0;
-		int count=0;
-		
+		int looptimes=0;		
 		loop: 
 		while (true) {
 			int desire = (int) array.get(noOfData)[array.get(noOfData).length - 1];
@@ -244,9 +245,6 @@ public class nnhw2 extends JFrame {
 					float sum = 0f;
 					sum = x0 * initialWeight.get(i)[0];
 					for (int j = 0; j < array.get(noOfData).length - 1; j++) {
-						// System.out.println("check the arrayinput :
-						// "+noOfData+" and j is : "+j+"
-						// "+array.get(noOfData)[j]);
 						sum += array.get(noOfData)[j] * initialWeight.get(i)[j + 1];
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sum)));
@@ -260,32 +258,30 @@ public class nnhw2 extends JFrame {
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sumZ)));
 					System.out.println("y" + i + "(z) output is : " + yOutput[i]);
-
-					// declare the desire
-					System.out.println("this data's desire is : " + desire);
-					System.out.println("desire value in area : " + desireArea[desire]);
 					
-					// check classify area correct or not use a range bound
+					// check classify area correct or not use a range bound (yOutputArea)
 					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
 						classifyFlage = 1;
 					} else {
 						System.out.println("Error clssify");
 						classifyFlage = 0;
-						//try store error message
+						//try store error message for rmse
+						/*
 						float errorTemp=desireArea[desire]-yOutput[i];
 						errorFunction[noOfData]=errorTemp;
+						*/
 					}
  				}
 			}
-			
+			// throw desireArea to gradient 
 			if (classifyFlage == 0) {
 				calculateGradient(desireArea[desire]);
 				tuneWeight(noOfData, array);
 			}
 						
 			System.out.println("---------------------------------------------------------");
-			
+	
 			if(noOfData==array.size()-1){
 				noOfData=0;
 			}
@@ -322,7 +318,7 @@ public class nnhw2 extends JFrame {
 		/*
 		 * 1. declare count is neuralAmount-1 for array use 
 		 * 2. while loop continue -- 
-		 * 3. output layer's gradient calculation is diff from hidden layer
+		 * 3. output layer's gradient calculation is different from hidden layer
 		 */
 		int countdown = neuralAmount - 1;
 		while (countdown != -1) {
@@ -346,7 +342,6 @@ public class nnhw2 extends JFrame {
 		 * 2. but we use a if to separate with hidden and output layer 
 		 * 3. in the calculation--notice: gradient[i] is i not j
 		 */
-		float weightSum = 0f;
 		for (int i = 0; i < initialWeight.size(); i++) {
 			if (i != initialWeight.size() - 1) {
 				for (int j = 0; j < initialWeight.get(i).length; j++) {
@@ -371,89 +366,17 @@ public class nnhw2 extends JFrame {
 		printArrayData(initialWeight);
 	}
 
-	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
-		JFrame frame = new JFrame();
-
-		frame.setVisible(true);// just set visible
-		frame.setLocation(100, 100);// set the frame show location
-		frame.setSize(frameSizeX, frameSizeY);// set the frame size
-		frame.setResizable(false);
-
-		Paint trypaint = new Paint(inputArray, countClass);
-		frame.add(trypaint);// add paint(class) things in to the frame
-	}
-
-	/*
-	 * 1. put first class's type into classTypes 1st place 2. if next line's
-	 * class diffrent with 1st class so go on next if 3. search classTypes's all
-	 * class to judge if all are diffrent rais addFlag 4. if addFlag raised, add
-	 * this new class into classType
-	 */
-	/*
-	 * private static int countClass(ArrayList<float[]> inputArray) {
-	 * 
-	 * int addFlag = 0; classTypes.add((int)
-	 * inputArray.get(0)[(inputArray.get(0).length) - 1]); for (int i = 0; i <
-	 * inputArray.size(); i++) { if (classTypes.get(0) != (int)
-	 * inputArray.get(i)[(inputArray.get(i).length) - 1]) { for (int j = 0; j <
-	 * classTypes.size(); j++) { if (classTypes.get(j) !=
-	 * inputArray.get(i)[(inputArray.get(0).length) - 1]) { addFlag = 1; } else
-	 * { addFlag = 0; } } if (addFlag == 1) { classTypes.add((int)
-	 * inputArray.get(i)[(inputArray.get(0).length) - 1]); } } } return
-	 * classTypes.size(); }
-	 */
-
-	public static void main(String[] args) throws IOException {
-
-		inputFileChoose(args);
-
-		sortInputArray(inputArray);
-
-		putInputToTemp(sortedArray);// copy to temp with random
-
-		separateTemp(tempArray);// separate to train and test set,set 2/3 as
-								// train set 1/3 as test set
-
-		
-		  System.out.println("trainArray's datas : ");
-		  printArrayData(trainArray); 
-//		  System.out.println("testArray's datas : " );
-//		  printArrayData(testArray);
-		 
-
-		genarateInitialWeight();
-
-		// hard coding test first
-		/*
-		float[] a = { (float) -1.2, 1, 1 };
-		float[] b = { (float) 0.3, 1, 1 };
-		float[] c = { (float) 0.5, (float) 0.4, (float) 0.8 };
-
-		initialWeight.add(a);
-		initialWeight.add(b);
-		initialWeight.add(c);
-		*///
-
-		calOutputArea();
-		calDesireArea();
-		calOutputValue(trainArray, initialWeight);
+	private static void checkWeight(){
 		
 		System.out.println("Show final weight ");
 		
-		for(int i=0;i<initialWeight.size();i++){
-			for(int j=0;j<initialWeight.get(i).length;j++){
-				System.out.print(initialWeight.get(i)[j]+"\t");
-			}
-			System.out.println();
-		}
+		printArrayData(initialWeight);
 		
-		//check the weight correct
 		System.out.println("-------------------- now start to check --------------------");
 		
 		printArrayData(trainArray);
-		
+
 		int noOfData = 0;
-		int classifyFlage = 0;
 		
 		loop: 
 		while (true) {
@@ -465,9 +388,6 @@ public class nnhw2 extends JFrame {
 					float sum = 0f;
 					sum = x0 * initialWeight.get(i)[0];
 					for (int j = 0; j < trainArray.get(noOfData).length - 1; j++) {
-						// System.out.println("check the arrayinput :
-						// "+noOfData+" and j is : "+j+"
-						// "+array.get(noOfData)[j]);
 						sum += trainArray.get(noOfData)[j] * initialWeight.get(i)[j + 1];
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sum)));
@@ -481,9 +401,8 @@ public class nnhw2 extends JFrame {
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sumZ)));
 					System.out.println("y" + i + "(z) output is : " + yOutput[i]);
-
-					
-					// check classify area correct or not use a range bound
+							
+					// check classify area correct or not use a range bound (yOutputArea)
 					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
 					} else {
@@ -502,6 +421,62 @@ public class nnhw2 extends JFrame {
 				noOfData++;
 			}			
 		}
+	}
+	
+	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
+		JFrame frame = new JFrame();
+
+		frame.setVisible(true);// just set visible
+		frame.setLocation(100, 100);// set the frame show location
+		frame.setSize(frameSizeX, frameSizeY);// set the frame size
+		frame.setResizable(false);
+
+		Paint trypaint = new Paint(inputArray, countClass);
+		frame.add(trypaint);// add paint(class) things in to the frame
+	}
+
+	public static void main(String[] args) throws IOException {
+		/*
+		 * 1. choose input file
+		 * 2. sort the desire , begin from 0 to classamount-1
+		 * 3. random input data
+		 * 4. separate data as 2/3 for train 1/3 for test
+		 * 5. generate random initial weight
+		 * 6. calculate the output's area to check y in the right area or not
+		 * 7. calculate the  desire's area for tune weight
+		 * 8. start to calculate the output value and generate gradient value
+		 * 	  to tune weight
+		 * 9. print final weight
+		 * 10. do cal again to check the final weight is correct
+		 * 11. GUI interface
+		 */
+		inputFileChoose(args);
+
+		sortInputArray(inputArray);
+
+		putInputToTemp(sortedArray);// copy to temp with random
+
+		separateTemp(tempArray);// separate to train and test set,set 2/3 as
+								// train set 1/3 as test set
+		
+//		System.out.println("trainArray's data : ");
+//		printArrayData(trainArray); 
+//		System.out.println("testArray's data : " );
+//		printArrayData(testArray);
+
+		generateInitialWeight();
+		
+		System.out.println("----------the initial weight size : "+initialWeight.size());
+		System.out.println("----------the intital 1 weight length : "+initialWeight.get(0).length);
+
+		calOutputArea();
+
+		calDesireArea();
+		
+		calOutputValue(trainArray, initialWeight);
+				
+		//check the weight correct
+		checkWeight();
 		
 		// genarateFrame(trainArray, sortedNewDesire+1);
 	}
