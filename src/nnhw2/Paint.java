@@ -40,13 +40,14 @@ public class Paint extends JPanel {
 		 * 4. then put these color into a arraylist named colorArray 
 		 * 	,so we can fetch the color in this arraylist
 		 */
-		
+		/*
 		for (int i = 0; i < trainArray.size(); i++) {
 			for (int j = 0; j < trainArray.get(i).length; j++) {
 				System.out.print(trainArray.get(i)[j] + "\t");
 			}
 			System.out.println("");
 		}
+		*/
 		//generate 3 color first
 		colorArray.add(red);
 		colorArray.add(blue);

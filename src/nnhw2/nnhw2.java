@@ -8,6 +8,8 @@ import javax.swing.*;
 
 import nnhw2.Paint;
 
+//only can do xor.txt fukk
+
 public class nnhw2 extends JFrame {
 
 	static int frameSizeX = 800;
@@ -36,7 +38,7 @@ public class nnhw2 extends JFrame {
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
-		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/xor.txt";
+		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/iris.txt";
 		FileReader fr = new FileReader(FileName);
 		BufferedReader br = new BufferedReader(fr);// 在br.ready反查輸入串流的狀況是否有資料
 
@@ -66,6 +68,14 @@ public class nnhw2 extends JFrame {
 
 	}
 
+	private static void normalizeData(){
+		for (int i = 0; i < inputArray.size(); i++) {
+			for (int j = 0; j < inputArray.get(i).length; j++) {
+					inputArray.get(i)[j]/=1000;
+			}
+		}
+	}
+
 	public static void sortInputArray(ArrayList<float[]> inputArray) {
 		/*
 		 * 1. set loop times = inputArray's dataamount 2. in while loop we have
@@ -85,13 +95,8 @@ public class nnhw2 extends JFrame {
 		System.out.println("--------- Start sort ---------");
 		System.out.println("This is inputarray's size : " + inputArraySize);
 		whileloop: while (true) {
-			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set
-																						// the
-																						// first
-																						// one's
-																						// desire
-																						// as
-																						// standard
+			// set the first one's desire as standard
+			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
 			System.out.println("Now the standartDesire is  : " + standardDesire);
 
 			for (int i = 0; i < inputArray.size(); i++) {
@@ -239,6 +244,7 @@ public class nnhw2 extends JFrame {
 		while (true) {
 			int desire = (int) array.get(noOfData)[array.get(noOfData).length - 1];
 			System.out.println("this is dataamount : " + noOfData);
+			// youtput size wrong and initial size wrong 3!=14
 			
 			for (int i = 0; i < neuralAmount; i++) {
 				if (i != neuralAmount - 1) {
@@ -246,6 +252,7 @@ public class nnhw2 extends JFrame {
 					sum = x0 * initialWeight.get(i)[0];
 					for (int j = 0; j < array.get(noOfData).length - 1; j++) {
 						sum += array.get(noOfData)[j] * initialWeight.get(i)[j + 1];
+
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sum)));
 					System.out.println("y" + i + " output is : " + yOutput[i]);
@@ -377,6 +384,7 @@ public class nnhw2 extends JFrame {
 		printArrayData(trainArray);
 
 		int noOfData = 0;
+		int count=0;
 		
 		loop: 
 		while (true) {
@@ -405,6 +413,7 @@ public class nnhw2 extends JFrame {
 					// check classify area correct or not use a range bound (yOutputArea)
 					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
+						count++;
 					} else {
 						System.out.println("Error clssify");
 						//try store error message
@@ -421,6 +430,8 @@ public class nnhw2 extends JFrame {
 				noOfData++;
 			}			
 		}
+		System.out.println("total train array amount : "+trainArray.size());
+		System.out.println("correct amount count : "+count);
 	}
 	
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
@@ -434,7 +445,7 @@ public class nnhw2 extends JFrame {
 		Paint trypaint = new Paint(inputArray, countClass);
 		frame.add(trypaint);// add paint(class) things in to the frame
 	}
-
+	
 	public static void main(String[] args) throws IOException {
 		/*
 		 * 1. choose input file
@@ -451,6 +462,8 @@ public class nnhw2 extends JFrame {
 		 * 11. GUI interface
 		 */
 		inputFileChoose(args);
+		
+		normalizeData();
 
 		sortInputArray(inputArray);
 
@@ -478,7 +491,7 @@ public class nnhw2 extends JFrame {
 		//check the weight correct
 		checkWeight();
 		
-		// genarateFrame(trainArray, sortedNewDesire+1);
+		//genarateFrame(trainArray, sortedNewDesire+1);
 	}
 
 	public static void printArrayData(ArrayList<float[]> showArray) {
