@@ -8,8 +8,6 @@ import javax.swing.*;
 
 import nnhw2.Paint;
 
-//only can do xor.txt fukk
-
 public class nnhw2 extends JFrame {
 
 	static int frameSizeX = 800;
@@ -38,7 +36,7 @@ public class nnhw2 extends JFrame {
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
-		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/iris.txt";
+		String FileName = "/Users/Terry/Documents/workspace/datasets/hw2/xor.txt";
 		FileReader fr = new FileReader(FileName);
 		BufferedReader br = new BufferedReader(fr);// 在br.ready反查輸入串流的狀況是否有資料
 
@@ -70,10 +68,14 @@ public class nnhw2 extends JFrame {
 
 	private static void normalizeData(){
 		for (int i = 0; i < inputArray.size(); i++) {
-			for (int j = 0; j < inputArray.get(i).length; j++) {
-					inputArray.get(i)[j]/=1000;
+			for (int j = 0; j < inputArray.get(i).length-1; j++) {
+					inputArray.get(i)[j]/=10;
 			}
 		}
+	}
+	
+	public static void decideNeuralAmount(ArrayList<float[]> inputArray){
+		neuralAmount=inputArray.get(0).length;
 	}
 
 	public static void sortInputArray(ArrayList<float[]> inputArray) {
@@ -296,7 +298,7 @@ public class nnhw2 extends JFrame {
 				noOfData++;
 			}
 			looptimes ++;
-			if(looptimes>10000){
+			if(looptimes>20000){
 				System.out.println("out of looptimes");
 				break loop;
 			}
@@ -462,6 +464,10 @@ public class nnhw2 extends JFrame {
 		 * 11. GUI interface
 		 */
 		inputFileChoose(args);
+
+//		decideNeuralAmount(inputArray);
+		
+//		System.out.println("#######"+neuralAmount);
 		
 		normalizeData();
 
