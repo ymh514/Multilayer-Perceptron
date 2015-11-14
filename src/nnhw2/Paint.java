@@ -39,12 +39,14 @@ public class Paint extends JPanel {
 		 * 	,so we can fetch the color in this arraylist
 		 */
 		
+		/*
 		for (int i = 0; i < trainArray.size(); i++) {
 			for (int j = 0; j < trainArray.get(i).length; j++) {
 				System.out.print(trainArray.get(i)[j] + "\t");
 			}
 			System.out.println("");
-		}
+		}*/
+		
 		//generate 3 color first
 		colorArray.add(red);
 		colorArray.add(blue);
@@ -52,8 +54,8 @@ public class Paint extends JPanel {
 		// if class amount > 3 do under function
 		if(classAmount>3){
 			int colorR = 100;
-			int colorG = 50;
-			int colorB = 0;
+			int colorG = 100;
+			int colorB = 100;
 	
 			for (int i = 3; i < classAmount; i++) {
 	
@@ -81,8 +83,8 @@ public class Paint extends JPanel {
 			for(int j=0;j<trainArray.size();j++){
 				if(trainArray.get(j)[trainArray.get(j).length-1]==i){
 					g.setColor(colorArray.get(i));
-					g.fillOval((Math.round(398 + (trainArray.get(j)[0]) * 16)),
-							Math.round((398 + (-trainArray.get(j)[1]) * 16)), 4, 4);
+					g.fillOval((Math.round(398 + (trainArray.get(j)[0]) * 300)),
+							Math.round((398 + (-trainArray.get(j)[1]) * 300)), 4, 4);
 					
 				}
 			}
