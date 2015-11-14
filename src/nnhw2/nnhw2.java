@@ -13,8 +13,8 @@ public class nnhw2 extends JFrame {
 	static int frameSizeX = 800;
 	static int frameSizeY = 800;
 	static int neuralAmount = 3;
-	static int looplimit = 1000;
 	static int x0 = -1;
+	static int looptimeLimit = 10000;
 	
 	static float studyRate = 0.5f;
 
@@ -66,18 +66,7 @@ public class nnhw2 extends JFrame {
 		fr.close();// 關閉檔案
 
 	}
-
-	private static void normalizeData(){
-		for (int i = 0; i < inputArray.size(); i++) {
-			for (int j = 0; j < inputArray.get(i).length-1; j++) {
-				if(inputArray.get(i)[j]>100){
-					inputArray.get(i)[j]/=1000;
-				}
-			}
-		}
-	}
 	
-
 	public static void sortInputArray(ArrayList<float[]> inputArray) {
 		/*
 		 * 1. set loop times = inputArray's dataamount 2. in while loop we have
@@ -97,8 +86,13 @@ public class nnhw2 extends JFrame {
 		System.out.println("--------- Start sort ---------");
 		System.out.println("This is inputarray's size : " + inputArraySize);
 		whileloop: while (true) {
-			// set the first one's desire as standard
-			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];
+			int standardDesire = (int) inputArray.get(0)[inputArray.get(0).length - 1];// set
+																						// the
+																						// first
+																						// one's
+																						// desire
+																						// as
+																						// standard
 			System.out.println("Now the standartDesire is  : " + standardDesire);
 
 			for (int i = 0; i < inputArray.size(); i++) {
@@ -172,10 +166,10 @@ public class nnhw2 extends JFrame {
 			for (int j = 0; j < trainArray.get(0).length; j++) {
 				if (Math.random() > 0.5) {
 					token[j] = rand.nextFloat() + 0f;
-					System.out.println("weight : " + token[j]);
+					//System.out.println("weight : " + token[j]);
 				} else {
 					token[j] = rand.nextFloat() - 1f;
-					System.out.println("weight : " + token[j]);
+					//System.out.println("weight : " + token[j]);
 				}
 			}
 			initialWeight.add(token);
@@ -246,8 +240,7 @@ public class nnhw2 extends JFrame {
 		while (true) {
 			int desire = (int) array.get(noOfData)[array.get(noOfData).length - 1];
 			System.out.println("this is dataamount : " + noOfData);
-			// youtput size wrong and initial size wrong 3!=14
-			
+			System.out.println("this is the desire : " + desire + " / " + (sortedNewDesire+1));
 			for (int i = 0; i < neuralAmount; i++) {
 				if (i != neuralAmount - 1) {
 					float sum = 0f;
@@ -255,8 +248,13 @@ public class nnhw2 extends JFrame {
 					for (int j = 0; j < array.get(noOfData).length - 1; j++) {
 						sum += array.get(noOfData)[j] * initialWeight.get(i)[j + 1];
 					}
-					//System.out.println("******"+sum);
+					//System.out.println("sum sum sum sum : "+sum);
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sum)));
+					
+					//*************************try 3-13's way find y*************************
+					yOutput[i] = yOutput[i]*(desireArea[desireArea.length-1]-desireArea[0])+desireArea[0];
+					//*************************try 3-13's way find y*************************
+					
 					System.out.println("y" + i + " output is : " + yOutput[i]);
 				} else {
 					float sumZ = 0f;
@@ -266,12 +264,26 @@ public class nnhw2 extends JFrame {
 																			// right
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sumZ)));
+					
+					//*************************try 3-13's way find y*************************
+					yOutput[i] = yOutput[i]*(desireArea[desireArea.length-1]-desireArea[0])+desireArea[0];
+					//*************************try 3-13's way find y*************************
+					
 					System.out.println("y" + i + "(z) output is : " + yOutput[i]);
+
  				}
+				float errorTemp=0f;
+				errorTemp=desireArea[desire]-yOutput[i];
+				errorFunction[i]=errorTemp;
 			}
+			
+			
+			
+			
 			// throw desireArea to gradient 
 			calculateGradient(desireArea[desire]);
 			tuneWeight(noOfData, array);
+			
 						
 			System.out.println("---------------------------------------------------------");
 	
@@ -282,7 +294,7 @@ public class nnhw2 extends JFrame {
 				noOfData++;
 			}
 			looptimes ++;
-			if(looptimes>looplimit){
+			if(looptimes>looptimeLimit){
 				System.out.println("out of looptimes");
 				break loop;
 			}
@@ -298,6 +310,9 @@ public class nnhw2 extends JFrame {
 		 */
 		System.out.println("----- try to cal error function -----");
 		float errorSum=0;
+		for(int i=0;i<errorFunction.length;i++){
+			System.out.println("errorFunction "+i+" is : "+errorFunction[i]);
+		}
 		for(int i=0;i<errorFunction.length;i++){
 			errorSum = errorSum + (errorFunction[i] * errorFunction[i]);
 		}	
@@ -361,23 +376,23 @@ public class nnhw2 extends JFrame {
 
 	private static void checkWeight(){
 		
-		System.out.println("Show final weight ");
+		//System.out.println("Show final weight ");
 		
-		printArrayData(initialWeight);
+		//printArrayData(initialWeight);
 		
-		System.out.println("-------------------- now start to check --------------------");
+		//System.out.println("-------------------- now start to check --------------------");
 		
-		printArrayData(trainArray);
-
+		//printArrayData(trainArray);
+		
+		
 		int noOfData = 0;
-		int count=0;
-		
+		int correctCount = 0;
 		loop: 
 		while (true) {
 			int desire = (int) trainArray.get(noOfData)[trainArray.get(noOfData).length - 1];
 			System.out.println("this is dataamount : " + noOfData);
-			System.out.println("desire : "+desire);
-			
+			System.out.println("this is the desireArea : " + desire + " / " + (sortedNewDesire+1));
+
 			for (int i = 0; i < neuralAmount; i++) {
 				if (i != neuralAmount - 1) {
 					float sum = 0f;
@@ -400,9 +415,9 @@ public class nnhw2 extends JFrame {
 					// check classify area correct or not use a range bound (yOutputArea)
 					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						System.out.println("Correct classify");
-						count++;
+						correctCount++;
 					} else {
-						System.out.println("Error clssify");
+						System.out.println("###  Error clssify");
 						//try store error message
 					}
  				}
@@ -417,11 +432,13 @@ public class nnhw2 extends JFrame {
 				noOfData++;
 			}			
 		}
-		System.out.println("total train array amount : "+trainArray.size());
-		System.out.println("correct amount count : "+count);
+		System.out.println("This is train data amounts :　"+trainArray.size());
+
+		System.out.println("This is correct count : "+correctCount);
 	}
 	
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
+
 		JFrame frame = new JFrame();
 
 		frame.setVisible(true);// just set visible
@@ -431,6 +448,20 @@ public class nnhw2 extends JFrame {
 
 		Paint trypaint = new Paint(inputArray, countClass);
 		frame.add(trypaint);// add paint(class) things in to the frame
+	}
+
+	private static void normalizeData(){
+		for (int i = 0; i < inputArray.size(); i++) {
+			float max = Float.MIN_VALUE;
+			for (int j = 0; j < inputArray.get(i).length-1; j++) {
+				if(Math.abs(inputArray.get(i)[j])>max){
+					max = Math.abs(inputArray.get(i)[j]);
+				}
+			}
+			for (int k = 0; k < inputArray.get(i).length-1; k++) {
+				inputArray.get(i)[k] /= max;
+			}
+		}
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -450,10 +481,10 @@ public class nnhw2 extends JFrame {
 		 */
 		inputFileChoose(args);
 		
-//		normalizeData();
-
+		normalizeData();
+		
 		sortInputArray(inputArray);
-
+				
 		putInputToTemp(sortedArray);// copy to temp with random
 
 		separateTemp(tempArray);// separate to train and test set,set 2/3 as
@@ -466,9 +497,6 @@ public class nnhw2 extends JFrame {
 
 		generateInitialWeight();
 		
-		System.out.println("----------the initial weight size : "+initialWeight.size());
-		System.out.println("----------the intital 1 weight length : "+initialWeight.get(0).length);
-
 		calOutputArea();
 
 		calDesireArea();
