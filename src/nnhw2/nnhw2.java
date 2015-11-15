@@ -14,10 +14,19 @@ public class nnhw2 extends JFrame {
 	static int frameSizeY = 800;
 	static int neuralAmount = 3;
 	static int x0 = -1;
-	static int looptimeLimit = 1000;
+	static int looptimeLimit = 3000000;
+	static int looptimes = 0;
+	static float errorLimit = 0.0001f;
 	
-	static float studyRate = 0.5f;
+	static int correctCount = 0;
 
+	
+	static float studyRate = 0.1f;
+	
+	static float alpha = 0.5f;
+	static ArrayList<float[]> lastWeight = new ArrayList<float[]>();
+
+	
 	static ArrayList<float[]> inputArray = new ArrayList<float[]>();
 	static ArrayList<float[]> sortedArray = new ArrayList<float[]>();
 	static ArrayList<float[]> tempArray = new ArrayList<float[]>();
@@ -32,12 +41,13 @@ public class nnhw2 extends JFrame {
 	static float[] yOutputArea;
 	static float[] desireArea;
 	static float[] gradient = new float[neuralAmount];
-	static float[] errorFunction = new float[neuralAmount];
+	static float[] errorFunction = new float[1];
 //	static ArrayList<Float> errorFunction=new ArrayList<Float>();
+	static ArrayList<Float> rmse=new ArrayList<Float>();
 
 	public static void inputFileChoose(String[] args) throws IOException {
 
-		String FileName = "C:\\Users\\Terry\\Desktop\\nnhw2dataset\\xor.txt";
+		String FileName = "C:\\Users\\Terry\\Desktop\\nnhw2dataset\\579.txt";
 		FileReader fr = new FileReader(FileName);
 		BufferedReader br = new BufferedReader(fr);// 在br.ready反查輸入串流的狀況是否有資料
 
@@ -235,11 +245,12 @@ public class nnhw2 extends JFrame {
 		// looptimes count , still need to add rmse 
 		int noOfData = 0;
 		int classifyFlage = 0;
-		int looptimes=0;		
+		//int looptimes=0;
 		loop: 
 		while (true) {
 			int desire = (int) array.get(noOfData)[array.get(noOfData).length - 1];
-			System.out.println("this is dataamount : " + noOfData);
+			//System.out.println("this is dataamount : " + noOfData);
+			//System.out.println("this is the desire want : "+desireArea[desire]);
 			
 			for (int i = 0; i < neuralAmount; i++) {
 				if (i != neuralAmount - 1) {
@@ -250,7 +261,12 @@ public class nnhw2 extends JFrame {
 					}
 					//System.out.println("sum sum sum sum : "+sum);
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sum)));
-					System.out.println("y" + i + " output is : " + yOutput[i]);
+					//**************************************************************
+					//yOutput[i] = yOutput[i]*(desireArea[desireArea.length-1]-desireArea[0])+desireArea[0];
+					//**************************************************************
+
+					//System.out.println("y" + i + " output is : " + yOutput[i]);
+					
 				} else {
 					float sumZ = 0f;
 					sumZ = x0 * initialWeight.get(i)[0];
@@ -259,66 +275,87 @@ public class nnhw2 extends JFrame {
 																			// right
 					}
 					yOutput[i] = (float) (1 / (1 + Math.exp(-sumZ)));
-					System.out.println("y" + i + "(z) output is : " + yOutput[i]);
+					//**************************************************************
+					//yOutput[i] = yOutput[i]*(desireArea[desireArea.length-1]-desireArea[0])+desireArea[0];
+					//**************************************************************
+
+					//System.out.println("y" + i + "(z) output is : " + yOutput[i]);
+					
 					
 					// check classify area correct or not use a range bound (yOutputArea)
 					if (yOutput[i] > yOutputArea[desire] && yOutput[i] <= yOutputArea[desire + 1]) {
 						//System.out.println("Correct classify");
-						classifyFlage = 1;
+						//classifyFlage = 1;
+						correctCount++;
 					} else {
 						//System.out.println("Error clssify");
-						classifyFlage = 0;
+						//classifyFlage = 0;
 					}
+					
+					errorFunction[0]=0;
+					errorFunction[0]=(desireArea[desire]-yOutput[i]);
  				}
-				float errorTemp=0f;
-				errorTemp=desireArea[desire]-yOutput[i];
-				errorFunction[i]=errorTemp;
 			}
-			
-			
-			
-			
+			calenRMSE();
 			// throw desireArea to gradient 
-			if (classifyFlage == 0) {
-				calculateGradient(desireArea[desire]);
-				tuneWeight(noOfData, array);
-			}
-						
-			System.out.println("---------------------------------------------------------");
-	
+		//	if(classifyFlage==0){
+			calculateGradient(desireArea[desire]);
+			tuneWeight(noOfData, array);
+		//	}
+			
+			//System.out.println("---------------------------------------------------------");
+			
 			if(noOfData==array.size()-1){
 				noOfData=0;
+				looptimes ++;
+				float ratio = (float)correctCount/array.size();
+				if(ratio==1){
+					System.out.println("correct ratio 100%");
+					break loop;
+				}
+				System.out.println("the correct ratio is : " + ratio*100+"%");
+				if(caleavRMSE()<errorLimit){
+					System.out.println("find eavrmse < "+errorLimit);
+					break loop;
+				}
+				rmse.removeAll(rmse);
+				correctCount=0;
 			}
 			else{			
 				noOfData++;
 			}
-			looptimes ++;
 			if(looptimes>looptimeLimit){
 				System.out.println("out of looptimes");
 				break loop;
 			}
-			
 		}
 
 	}
 
-	private static float calRMSE(){
+	private static float calenRMSE(){
 		/*idea: continue return errorSum and if the return value
 		 *      if the value is not good at all the loop will 
 		 *      run again & again
 		 */
-		System.out.println("----- try to cal error function -----");
+//		System.out.println("----- try to cal error function -----");
 		float errorSum=0;
-		for(int i=0;i<errorFunction.length;i++){
-			System.out.println("errorFunction "+i+" is : "+errorFunction[i]);
-		}
-		for(int i=0;i<errorFunction.length;i++){
-			errorSum = errorSum + (errorFunction[i] * errorFunction[i]);
-		}	
-		errorSum /= 2;
-		System.out.println("Test RMSE : "+errorSum);
+	
+		errorSum = errorFunction[0]*errorFunction[0];
 		
+		errorSum /= 2;
+		rmse.add(errorSum);
+//		System.out.println("Test RMSE : "+errorSum);
 		return errorSum;
+	}
+	
+	private static float caleavRMSE(){
+		float sumrmse=0f;
+		for(int i=0;i<rmse.size();i++){
+			sumrmse += rmse.get(i);
+		}
+		sumrmse = sumrmse/rmse.size();
+		System.out.println("均方誤差:: " + sumrmse);
+		return sumrmse;
 	}
 	
 	private static void calculateGradient(float desire) {
@@ -337,10 +374,12 @@ public class nnhw2 extends JFrame {
 			}
 			countdown--;
 		}
+		/*
 		System.out.println("gradient : ");
 		for (int i = 0; i < gradient.length; i++) {
 			System.out.println(gradient[i]);
 		}
+		*/
 	}
 
 	private static void tuneWeight(int noOfData, ArrayList<float[]> array) {
@@ -349,28 +388,41 @@ public class nnhw2 extends JFrame {
 		 * 2. but we use a if to separate with hidden and output layer 
 		 * 3. in the calculation--notice: gradient[i] is i not j
 		 */
+		float tuneWeight = 0f;
 		for (int i = 0; i < initialWeight.size(); i++) {
 			if (i != initialWeight.size() - 1) {
 				for (int j = 0; j < initialWeight.get(i).length; j++) {
 					if (j == 0) {
-						initialWeight.get(i)[j] += studyRate * gradient[i] * x0;
+						tuneWeight = alpha*lastWeight.get(i)[j]+studyRate * gradient[i] * x0;
+						initialWeight.get(i)[j] += tuneWeight;
+						lastWeight.get(i)[j]=tuneWeight;
 					} else {
-						initialWeight.get(i)[j] += studyRate * gradient[i] * array.get(noOfData)[j - 1];
+						tuneWeight = alpha*lastWeight.get(i)[j]+studyRate * gradient[i] * array.get(noOfData)[j - 1];
+						initialWeight.get(i)[j] += tuneWeight;
+						lastWeight.get(i)[j]=tuneWeight;
 					}
 				}
 			} else {
 				for (int j = 0; j < initialWeight.get(i).length; j++) {
 					if (j == 0) {
-						initialWeight.get(i)[j] += studyRate * gradient[i] * x0;
+						tuneWeight = alpha*lastWeight.get(i)[j]+(studyRate * gradient[i] * x0);
+						initialWeight.get(i)[j] += tuneWeight;
+						lastWeight.get(i)[j]=tuneWeight;
+						
 					} else {
-						initialWeight.get(i)[j] += studyRate * gradient[i] * yOutput[j - 1];
+						tuneWeight = alpha*lastWeight.get(i)[j]+(studyRate * gradient[i] * yOutput[j - 1]);
+						initialWeight.get(i)[j] += tuneWeight;
+						lastWeight.get(i)[j]=tuneWeight;
+						
 					}
 				}
 			}
 
 		}
+		/*
 		System.out.println("tune weight : ");
 		printArrayData(initialWeight);
+		*/
 	}
 
 	private static void checkWeight(){
@@ -386,6 +438,7 @@ public class nnhw2 extends JFrame {
 		
 		int noOfData = 0;
 		int correctCount = 0;
+		int errorCount = 0;
 		loop: 
 		while (true) {
 			int desire = (int) trainArray.get(noOfData)[trainArray.get(noOfData).length - 1];
@@ -416,13 +469,13 @@ public class nnhw2 extends JFrame {
 						correctCount++;
 					} else {
 						System.out.println("###  Error clssify");
+						errorCount++;
 						//try store error message
 					}
  				}
 			}
 
 			System.out.println("---------------------------------------------------------");
-			
 			if(noOfData==trainArray.size()-1){
 				break loop;
 			}
@@ -433,6 +486,7 @@ public class nnhw2 extends JFrame {
 		System.out.println("This is train data amounts :　"+trainArray.size());
 
 		System.out.println("This is correct count : "+correctCount);
+		System.out.println("This is error count : "+errorCount);
 	}
 	
 	private static void genarateFrame(ArrayList<float[]> inputArray, int countClass) {
@@ -495,6 +549,24 @@ public class nnhw2 extends JFrame {
 
 		generateInitialWeight();
 		
+		/*
+		float[] a = { (float) -1.2, 1, 1 };
+		float[] b = { (float) 0.3, 1, 1 };
+		float[] c = { (float) 0.5, (float) 0.4, (float) 0.8 };
+		initialWeight.add(a);
+		initialWeight.add(b);
+		initialWeight.add(c);	
+		*/
+				
+		for (int i = 0; i < neuralAmount; i++) {
+			float[] test = new float[trainArray.get(0).length];
+			for (int j = 0; j < trainArray.get(0).length; j++) {
+
+				test[j] = 0f;
+			}
+			lastWeight.add(test);
+		}
+		
 		calOutputArea();
 
 		calDesireArea();
@@ -502,7 +574,16 @@ public class nnhw2 extends JFrame {
 		calOutputValue(trainArray, initialWeight);
 				
 		//check the weight correct
-		checkWeight();
+		//checkWeight();
+		
+		System.out.println("rmse rmse rmse rmse ");
+		for(int i =0;i<rmse.size();i++){
+//			System.out.println(rmse.get(i));
+		}
+		
+		System.out.println("均方誤差?");
+		caleavRMSE();
+		System.out.println("Looptimes :　"+looptimes);
 		
 		//genarateFrame(trainArray, sortedNewDesire+1);
 	}
